@@ -1,8 +1,27 @@
 " Vim Tex / LaTeX ftplugin to automatically close environments.
 " Maintainor:	Gautam Iyer <gautam@math.uchicago.edu>
 " Created:	Mon 23 Feb 2004 04:47:53 PM CST
-" Last Changed:	Mon 23 Feb 2004 05:57:05 PM CST
-
+" Last Changed:	Fri 12 Mar 2004 04:23:59 PM CST
+" Version:	1.01 
+"
+" Description:
+"   By default pressing "}" in insert mode when the cursor is at the end of a
+"   "\begin{environment}" will automatically generate a "\close{environment}".
+"   It will leave the cursor at the end of the "\begin{environment}" (in
+"   insert mode), so that the user can enter arguments [if any].
+"
+"   Pressing "}" in insert mode will only insert a "}" and not atempt to
+"   generate a "\end{environment}" tag.
+"
+" TODO:
+"   1. If "}" does not close the environment, then show the matching "{".
+"
+" History:
+"   Version 1.01:	Disabled the mapping "\}". To insert a literal "}" in
+"   			latex, you have to use "\}", which conflicts with this
+"   			mapping. If you do NOT want "}" to automatically close
+"   			an environment, use "}"
+ 
 " provide load control
 if exists('b:loaded_tex_autoclose')
     finish
@@ -13,29 +32,30 @@ let b:loaded_tex_autoclose = 1
 " If the user has mapped "TexCloseEnv" to something, we assume he does not
 " want our maps, and we do not provide any mappings.
 if !hasmapto("TexCloseEnv()", "ni")
-    inoremap <buffer>		<leader>}  }
+    " \} is anoying. it shows up often in latex. 
+    " inoremap <buffer>		<leader>}  }
     inoremap <buffer> <silent>	}	   }<esc>:call TexCloseEnv()<cr>
 endif
 
-" If the cursor is at the end of a "\begin{environment}", then generate the
-" corresponding "\end{environment}" and put it on the next line. Leave the
-" cursor (in insert mode) at the end of "\begin{environment}" so the user can
-" enter agruements (if any).
-function TexCloseEnv()
-    let line = getline('.')
-    let linestart = strpart( line, 0, col('.'))
+" Only define the function if it has not been defined before.
+if !exists('*TexCloseEnv()')
+    " Function to automatically close environments
+    function TexCloseEnv()
+	let line = getline('.')
+	let linestart = strpart( line, 0, col('.'))
 
-    let env = matchstr( linestart, '\v%(\\begin\{)@<=[a-zA-Z0-9*]+%(\}$)@=')
-    if env != ''
-	exec "normal! a\<cr>\\end{" . env . "}\<esc>k"
-	startinsert!
-    else
-	" Not a begin tag. Resume insert mode as if nothing had happened
-	if col('.') < strlen(line)
-	    normal! l
-	    startinsert
-	else
+	let env = matchstr( linestart, '\v%(\\begin\{)@<=[a-zA-Z0-9*]+%(\}$)@=')
+	if env != ''
+	    exec "normal! a\<cr>\\end{" . env . "}\<esc>k"
 	    startinsert!
+	else
+	    " Not a begin tag. Resume insert mode as if nothing had happened
+	    if col('.') < strlen(line)
+		normal! l
+		startinsert
+	    else
+		startinsert!
+	    endif
 	endif
-    endif
-endfunction
+    endfunction
+endif
