@@ -1,8 +1,8 @@
 " Vim Tex / LaTeX ftplugin to automatically close environments.
 " Maintainor:	Gautam Iyer <gautam@math.uchicago.edu>
 " Created:	Mon 23 Feb 2004 04:47:53 PM CST
-" Last Changed:	Wed 25 Mar 2009 10:57:46 AM PDT
-" Version:	1.2
+" Last Changed:	Fri 06 Jul 2012 08:59:43 PM PDT
+" Version:	1.3
 "
 " Description:
 "   Provides mappings to automatically close environments.
@@ -104,10 +104,12 @@ function! TexClosePrev( restore_insert )
     endif
     let fold = tr( fold, '{', '}' )
 
-    exec 'normal! a\end{' . env . '}' . fold . "\<esc>"
+    exec 'normal a\end{' . env . '}' . fold . "\<esc>" . 'F\==f}'
+    "call append( line('.')-1, '\end{' . env . '}' . fold )
 
     if a:restore_insert == 1
 	if col('.') < col('$') - 1
+	    call setpos( '.', [0, line('.'), col('.') + 1, 0] )
 	    startinsert
 	else
 	    startinsert!
