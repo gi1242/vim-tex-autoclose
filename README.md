@@ -1,4 +1,4 @@
-# tex_autclose.vim
+# tex_autoclose.vim
 
 Provides mappings to automatically close environments in TeX/LaTeX.
 
