@@ -13,5 +13,11 @@ Small and functional. Suggestions welcome.
  
 ## Install details
 
-drop the script into your `$VIMRUNTIME/ftplugin` directory for global instalation.
+Drop the script into your `$VIMRUNTIME/ftplugin` directory for global instalation.
 Put it in `~/.vim/ftplugin` for local installation.
+
+## Links
+
+* [Vim script page](http://www.vim.org/scripts/script.php?script_id=920)
+
+* [Git hub page](https://github.com/gi1242/vim-tex-autoclose)
