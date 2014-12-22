@@ -1,7 +1,7 @@
 " Vim Tex / LaTeX ftplugin to automatically close environments.
 " Maintainor:	Gautam Iyer <gautam@math.uchicago.edu>
 " Created:	Mon 23 Feb 2004 04:47:53 PM CST
-" Last Changed:	Mon 07 Jul 2014 11:45:07 PM CEST
+" Last Changed:	Mon 22 Dec 2014 07:00:21 AM IST
 " Version:	1.3
 "
 " Description:
@@ -20,6 +20,9 @@
 "
 "
 " History:
+"   Version 1.3:	Fixed positioning for <C-\>c. Renamed all global
+"		        functions to begin with TexAC to avoid conflicts with
+"		        LatexBox and others.
 "   Version 1.2:	Disabled "}" auto closing environments by default.
 "			This ruined the change history (and didn't account for
 "			fold markers). Provided "<C-\>c" to close the last
@@ -48,21 +51,21 @@ else
 	    \ '\v^(theorem|lemma|corollary|proposition|remark)\*?$'
 endif
 
-" If the user has mapped "TexCloseCurrent" to something, we assume he does not
+" If the user has mapped "TexACCloseCurrent" to something, we assume he does not
 " want our maps, and we do not provide any mappings.
-if !hasmapto("TexCloseCurrent()", "ni")
+if !hasmapto("TexACCloseCurrent()", "ni")
     " \} is anoying. it shows up often in latex. 
     " inoremap <buffer>		<leader>}  }
-    inoremap <buffer> <silent>	<C-\>}	    <esc>:call TexCloseCurrent()<cr>}
+    inoremap <buffer> <silent>	<C-\>}	    <esc>:call TexACCloseCurrent()<cr>}
 endif
 
-if !hasmapto("TexClosePrev()")
-    nnoremap <buffer> <silent>	<LocalLeader>c	:call TexClosePrev(0)<cr>
-    inoremap <buffer> <silent>	<C-\>c		<esc>:call TexClosePrev(1)<cr>
+if !hasmapto("TexACClosePrev()")
+    nnoremap <buffer> <silent>	<LocalLeader>c	:call TexACClosePrev('n')<cr>
+    inoremap <buffer> <silent>	<C-\>c		<c-\><c-o>:call TexACClosePrev('i')<cr>
 endif
 
 " Function to automatically close the environment
-function! TexCloseCurrent()
+function! TexACCloseCurrent()
     let line = getline('.')
     let linestart = strpart( line, 0, col('.'))
 
@@ -82,7 +85,7 @@ function! TexCloseCurrent()
 endfunction
 
 " Return the name of the innermost OPEN environment at the cursor position.
-function! TexGetEnvName()
+function! TexACGetEnvName()
     let lnum = 0
     let cnum = 0
 
@@ -107,20 +110,23 @@ function! TexGetEnvName()
     return [env, fold]
 endfunction
 
-function! TexClosePrev( restore_insert )
-    let [env, fold] = TexGetEnvName()
+function! TexACClosePrev( mode )
+    let [env, fold] = TexACGetEnvName()
+    let at_eol = ( col('.') == col('$') )
+
     if env != ''
 	let fold = tr( fold, '{', '}' )
-	exec 'normal a\end{' . env . '}' . tr( fold, '{', '}' ) . "\<esc>" . 'F\==f}'
+	"exec 'normal a\end{' . env . '}' . tr( fold, '{', '}' )
+	exec 'normal ' . ( at_eol ? 'a' : 'i' ) . '\end{' . env . '}' . tr( fold, '{', '}' )
+	normal F\==f}
 	"call append( line('.')-1, '\end{' . env . '}' . fold )
     endif
 
-    if a:restore_insert == 1
-	if col('.') < col('$') - 1
-	    call setpos( '.', [0, line('.'), col('.') + 1, 0] )
-	    startinsert
-	else
+    if a:mode == 'i'
+	if at_eol
 	    startinsert!
+	else
+	    normal l
 	endif
     endif
 endfunction
