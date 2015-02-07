@@ -1,7 +1,7 @@
 " Vim Tex / LaTeX ftplugin to automatically close environments.
 " Maintainor:	Gautam Iyer <gautam@math.uchicago.edu>
 " Created:	Mon 23 Feb 2004 04:47:53 PM CST
-" Last Changed:	Mon 22 Dec 2014 07:00:21 AM IST
+" Last Changed:	Wed 04 Feb 2015 01:48:28 PM EST
 " Version:	1.3
 "
 " Description:
@@ -59,7 +59,7 @@ if !hasmapto("TexACCloseCurrent()", "ni")
     inoremap <buffer> <silent>	<C-\>}	    <esc>:call TexACCloseCurrent()<cr>}
 endif
 
-if !hasmapto("TexACClosePrev()")
+if !hasmapto("TexACClosePrev(")
     nnoremap <buffer> <silent>	<LocalLeader>c	:call TexACClosePrev('n')<cr>
     inoremap <buffer> <silent>	<C-\>c		<c-\><c-o>:call TexACClosePrev('i')<cr>
 endif
